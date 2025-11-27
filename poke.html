@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Card Builder</title>
+    <style>
+        /* * Google Fonts: 'Roboto' for body text and 'Bangers' for titles.
+         * This gives the app a clean but playful feel.
+         */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Bangers&display=swap');
+
+        /* * CSS Variables (Custom Properties) for easy theme management.
+         * All primary colors, fonts, and layout values are defined here.
+         */
+        :root {
+            --card-yellow: #FFD24C;
+            --card-blue: #30a7d7;
+            --dark-text: #212121;
+            --light-text: #ffffff;
+            --background-color: #f5f5f5;
+            --panel-background: #ffffff;
+            --border-radius: 20px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --font-body: 'Roboto', sans-serif;
+            --font-title: 'Bangers', cursive;
+        }
+
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* * Body styles: Sets up the main flex container for the layout.
+         * On mobile (flex-wrap: wrap), the items will stack vertically.
+         */
+        body {
+            font-family: var(--font-body);
+            background-color: var(--background-color);
+            color: var(--dark-text);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap; /* Essential for responsiveness */
+        }
+
+        /* --- FORM PANEL STYLES --- */
+        .form-container {
+            background: var(--panel-background);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .form-container h2 {
+            margin-bottom: 1.5rem;
+            font-family: var(--font-title);
+            letter-spacing: 1px;
+            font-size: 2rem;
+            text-align: center;
+            color: var(--dark-text);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: var(--font-body);
+        }
+        
+        /* Flexbox row for aligning items like HP and Type */
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* Styles for the Pokemon type selector buttons */
+        .type-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .type-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--light-text);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .type-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Pokemon Type Colors */
+        .type-btn.Electric { background-color: #F8D030; }
+        .type-btn.Water    { background-color: #6890F0; }
+        .type-btn.Fire     { background-color: #F08030; }
+        .type-btn.Grass    { background-color: #78C850; }
+        .type-btn.Psychic  { background-color: #F85888; }
+        .type-btn.Fighting { background-color: #C03028; }
+        .type-btn.Dark     { background-color: #705848; }
+        .type-btn.Fairy    { background-color: #EE99AC; }
+        .type-btn.Metal    { background-color: #B8B8D0; }
+
+        /* Download Button */
+        .download-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--card-blue);
+            color: var(--light-text);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: background-color 0.2s;
+            font-family: var(--font-title);
+            letter-spacing: 1px;
+        }
+
+        .download-btn:hover {
+            background-color: #2a8db8;
+        }
+        
+        /* --- CARD PREVIEW PANEL STYLES --- */
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .card-preview {
+            width: 420px;
+            height: 586px; /* Official Pokemon card aspect ratio */
+            border-radius: var(--border-radius);
+            padding: 15px;
+            background-color: var(--card-yellow);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            color: var(--dark-text);
+            border: 10px solid #f9c92a; /* Gold border */
+            transition: background-color 0.3s ease;
+        }
+
+        /* Card Header: Name, HP, Type */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .card-name {
+            font-family: var(--font-title);
+            font-size: 2rem;
+        }
+        .card-hp-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-hp {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .card-type-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid var(--dark-text);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Card Image */
+        .card-image-container {
+            flex-grow: 1; /* Allows the image to fill available space */
+            background: #e0e0e0;
+            margin-bottom: 10px;
+            border: 5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            overflow: hidden; /* Ensures image stays within the border-radius */
+        }
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the area without distortion */
+        }
+
+        /* Card Body: Attacks & Description */
+        .card-body {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .attack {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        .card-description {
+            font-size: 0.9rem;
+            text-align: left;
+            font-style: italic;
+        }
+
+        /* Card Footer: Weakness, Resistance, Retreat */
+        .card-footer {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.9rem;
+            padding-top: 5px;
+        }
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .footer-item span:first-child {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT PANEL: FORM -->
+    <div class="form-container">
+        <h2>Card Details</h2>
+
+        <div class="form-group">
+            <label for="name">Pokemon Name</label>
+            <input type="text" id="name" value="Pikachu" placeholder="e.g., Pikachu">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="hp">HP</label>
+                <input type="number" id="hp" value="60" placeholder="e.g., 60">
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <div class="type-selector">
+                    <button class="type-btn Electric" data-type="Electric">Electric</button>
+                    <button class="type-btn Water" data-type="Water">Water</button>
+                    <button class="type-btn Fire" data-type="Fire">Fire</button>
+                    <button class="type-btn Grass" data-type="Grass">Grass</button>
+                    <button class="type-btn Psychic" data-type="Psychic">Psychic</button>
+                    <button class="type-btn Fighting" data-type="Fighting">Fighting</button>
+                    <button class="type-btn Dark" data-type="Dark">Dark</button>
+                    <button class="type-btn Fairy" data-type="Fairy">Fairy</button>
+                    <button class="type-btn Metal" data-type="Metal">Metal</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="attack-name">Attack Name</label>
+                <input type="text" id="attack-name" value="Thunder Jolt" placeholder="e.g., Thunder Jolt">
+            </div>
+            <div class="form-group">
+                <label for="attack-damage">Attack Damage</label>
+                <input type="number" id="attack-damage" value="30" placeholder="e.g., 30">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" value="A friendly Pokemon known for its electric abilities." placeholder="Enter a description...">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="weakness">Weakness</label>
+                <input type="text" id="weakness" value="Ground" placeholder="e.g., Ground">
+            </div>
+            <div class="form-group">
+                <label for="resistance">Resistance</label>
+                <input type="text" id="resistance" value="Steel" placeholder="e.g., Steel">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="retreat-cost">Retreat Cost</label>
+            <input type="number" id="retreat-cost" value="1" min="0" max="5" placeholder="e.g., 1">
+        </div>
+
+        <div class="form-group">
+            <label for="image-upload">Pokemon Image (Recommended 800x800)</label>
+            <input type="file" id="image-upload" accept="image/png, image/jpeg">
+        </div>
+
+        <div class="form-group">
+            <label for="card-color">Card Color (Hex Code)</label>
+            <input type="text" id="card-color" value="#FFD24C" placeholder="#FFD24C">
+        </div>
+        
+        <button id="download-btn" class="download-btn">Download Card</button>
+    </div>
+
+    <!-- RIGHT PANEL: CARD PREVIEW -->
+    <div class="preview-container">
+        <div class="card-preview" id="card-preview">
+            <!-- Header -->
+            <div class="card-header">
+                <span class="card-name" id="preview-name">Pikachu</span>
+                <div class="card-hp-type">
+                    <span class="card-hp" id="preview-hp">60 HP</span>
+                    <div class="card-type-icon" id="preview-type-icon"></div>
+                </div>
+            </div>
+            <!-- Image -->
+            <div class="card-image-container">
+                <img class="card-image" id="preview-image" src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png" alt="Pokemon Image" onerror="this.src='https://placehold.co/800x800/e0e0e0/999?text=Upload%20Image'">
+            </div>
+            <!-- Body -->
+            <div class="card-body">
+                <div class="attack">
+                    <span id="preview-attack-name">Thunder Jolt</span>
+                    <span id="preview-attack-damage">30</span>
+                </div>
+                <p class="card-description" id="preview-description">A friendly Pokemon known for its electric abilities.</p>
+            </div>
+            <!-- Footer -->
+            <div class="card-footer">
+                <div class="footer-item">
+                    <span>Weakness</span>
+                    <span id="preview-weakness">Ground</span>
+                </div>
+                <div class="footer-item">
+                    <span>Resistance</span>
+                    <span id="preview-resistance">Steel</span>
+                </div>
+                <div class="footer-item">
+                    <span>Retreat Cost</span>
+                    <span id="preview-retreat-cost">1</span>
+                </div>
+            </div>
+        </div>
+        <p style="margin-top: 1rem; color: #666;">Click the download button to save your card!</p>
+    </div>
+
+    <!-- 
+      External library for converting HTML to an image.
+      This is the magic that makes the download feature work.
+    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+
+    <script>
+        // Wait for the entire HTML document to be loaded and parsed
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Central object to hold all card data. This is our "state".
+            const cardData = {
+                name: 'Pikachu',
+                hp: '60',
+                type: 'Electric',
+                attackName: 'Thunder Jolt',
+                attackDamage: '30',
+                description: 'A friendly Pokemon known for its electric abilities.',
+                weakness: 'Ground',
+                resistance: 'Steel',
+                retreatCost: '1',
+                cardColor: '#FFD24C',
+            };
+
+            // A map of Pokemon types to their official colors.
+            const typeColors = {
+                Electric: '#F8D030', Water: '#6890F0', Fire: '#F08030', Grass: '#78C850',
+                Psychic: '#F85888', Fighting: '#C03028', Dark: '#705848', Fairy: '#EE99AC',
+                Metal: '#B8B8D0'
+            };
+
+            // --- DOM ELEMENT SELECTORS ---
+            // Grabbing all the interactive elements from the HTML to manipulate them with JS.
+            const nameInput = document.getElementById('name');
+            const hpInput = document.getElementById('hp');
+            const attackNameInput = document.getElementById('attack-name');
+            const attackDamageInput = document.getElementById('attack-damage');
+            const descriptionInput = document.getElementById('description');
+            const weaknessInput = document.getElementById('weakness');
+            const resistanceInput = document.getElementById('resistance');
+            const retreatCostInput = document.getElementById('retreat-cost');
+            const imageUpload = document.getElementById('image-upload');
+            const cardColorInput = document.getElementById('card-color');
+            const typeButtons = document.querySelectorAll('.type-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const cardPreviewEl = document.getElementById('card-preview');
+
+            // --- PREVIEW ELEMENT SELECTORS ---
+            const previewName = document.getElementById('preview-name');
+            const previewHp = document.getElementById('preview-hp');
+            const previewTypeIcon = document.getElementById('preview-type-icon');
+            const previewImage = document.getElementById('preview-image');
+            const previewAttackName = document.getElementById('preview-attack-name');
+            const previewAttackDamage = document.getElementById('preview-attack-damage');
+            const previewDescription = document.getElementById('preview-description');
+            const previewWeakness = document.getElementById('preview-weakness');
+            const previewResistance = document.getElementById('preview-resistance');
+            const previewRetreatCost = document.getElementById('preview-retreat-cost');
+            
+            /**
+             * The main render function. It takes the data from the `cardData` object
+             * and updates the HTML of the card preview. This is called every time
+             * a value in the form changes.
+             */
+            const renderCard = () => {
+                previewName.innerText = cardData.name || 'Pokemon';
+                previewHp.innerText = `${cardData.hp || '0'} HP`;
+                previewAttackName.innerText = cardData.attackName || 'Attack';
+                previewAttackDamage.innerText = cardData.attackDamage || '0';
+                previewDescription.innerText = cardData.description || 'Description';
+                previewWeakness.innerText = cardData.weakness || '-';
+                previewResistance.innerText = cardData.resistance || '-';
+                previewRetreatCost.innerText = cardData.retreatCost || '0';
+                
+                // Update card and type icon colors
+                cardPreviewEl.style.backgroundColor = cardData.cardColor;
+                previewTypeIcon.style.backgroundColor = typeColors[cardData.type] || '#FFFFFF';
+            };
+
+            // --- EVENT LISTENERS ---
+            // These listeners watch for changes in the form inputs and update the state.
+            
+            nameInput.addEventListener('input', (e) => { cardData.name = e.target.value; renderCard(); });
+            hpInput.addEventListener('input', (e) => { cardData.hp = e.target.value; renderCard(); });
+            attackNameInput.addEventListener('input', (e) => { cardData.attackName = e.target.value; renderCard(); });
+            attackDamageInput.addEventListener('input', (e) => { cardData.attackDamage = e.target.value; renderCard(); });
+            descriptionInput.addEventListener('input', (e) => { cardData.description = e.target.value; renderCard(); });
+            weaknessInput.addEventListener('input', (e) => { cardData.weakness = e.target.value; renderCard(); });
+            resistanceInput.addEventListener('input', (e) => { cardData.resistance = e.target.value; renderCard(); });
+            retreatCostInput.addEventListener('input', (e) => { cardData.retreatCost = e.target.value; renderCard(); });
+
+            // Listener for the image file upload
+            imageUpload.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        previewImage.src = event.target.result;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            // Add a click listener to each type button
+            typeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const type = button.dataset.type;
+                    cardData.type = type;
+                    // When a type is selected, it also sets the default card color
+                    cardData.cardColor = typeColors[type];
+                    cardColorInput.value = typeColors[type]; // Update the hex input field
+                    renderCard();
+                });
+            });
+
+            // Listener for the manual hex color input
+            cardColorInput.addEventListener('input', (e) => {
+                cardData.cardColor = e.target.value;
+                renderCard();
+            });
+
+            // Listener for the download button
+            downloadBtn.addEventListener('click', () => {
+                // Use the htmlToImage library to convert the card preview div to a PNG
+                htmlToImage.toPng(cardPreviewEl, {
+                    pixelRatio: 2, // Increase pixel ratio for better quality on retina displays
+                })
+                .then(function (dataUrl) {
+                    // Create a temporary link element to trigger the download
+                    const link = document.createElement('a');
+                    link.download = `${(cardData.name || 'pokemon').toLowerCase().replace(' ', '-')}-card.png`;
+                    link.href = dataUrl;
+                    link.click(); // Programmatically click the link
+                })
+                .catch(function (error) {
+                    console.error('Oops, something went wrong!', error);
+                    alert('Could not generate card image. Please try again.');
+                });
+            });
+
+            // --- INITIAL RENDER ---
+            // Call the render function once on page load to display the default card.
+            renderCard();
+        });
+    </script>
+</body>
+</html>
